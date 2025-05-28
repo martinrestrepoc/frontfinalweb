@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
+// Tipo para definir la estructura de un contestant
 type Contestant = {
   id: string;
   name: string;
@@ -18,10 +19,14 @@ type Contestant = {
 };
 
 export default function ContestantsPage() {
+  // Obtiene el id del dictador desde la URL
   const { id } = useParams();
+
+  // Estados para almacenar lista de contestants y nombre del dictador
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [dictatorName, setDictatorName] = useState("");
 
+  // Función para obtener los contestants desde el backend
   const fetchContestants = async () => {
     try {
       const res = await api.get(`/dictators/${id}/contestants`);
@@ -31,6 +36,7 @@ export default function ContestantsPage() {
     }
   };
 
+  // Función para obtener el nombre del dictador para mostrarlo en la UI
   const fetchDictatorName = async () => {
     try {
       const res = await api.get(`/dictators/${id}`);
@@ -40,6 +46,7 @@ export default function ContestantsPage() {
     }
   };
 
+  // Función para eliminar un contestant con confirmación previa
   const handleDelete = async (contestantId: string) => {
     const confirm = window.confirm("Are you sure you want to delete this contestant?");
     if (!confirm) return;
@@ -47,13 +54,14 @@ export default function ContestantsPage() {
     try {
       await api.delete(`/contestants/${contestantId}`);
       alert("Contestant deleted!");
-      fetchContestants();
+      fetchContestants(); // Refresca la lista tras eliminar
     } catch (error) {
       alert("Error deleting contestant.");
       console.error(error);
     }
   };
 
+  // useEffect para cargar datos al montar el componente o cambiar el id
   useEffect(() => {
     if (id) {
       fetchContestants();
@@ -61,6 +69,7 @@ export default function ContestantsPage() {
     }
   }, [id]);
 
+  // Renderizado de la lista de contestants en tabla con opciones para editar y eliminar
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <Navbar />
@@ -96,11 +105,13 @@ export default function ContestantsPage() {
                 <td className="px-4 py-2">{c.agility}</td>
                 <td className="px-4 py-2">{c.status}</td>
                 <td className="px-4 py-2 flex gap-2">
+                  {/* Botón para editar contestant */}
                   <Link href={`/dictators/${id}/contestants/${c.id}/edit`}>
                     <Button size="sm" variant="outline" className="border-purple-400 text-purple-300 hover:bg-purple-600/10">
                       Edit
                     </Button>
                   </Link>
+                  {/* Botón para eliminar contestant */}
                   <Button
                     size="sm"
                     variant="destructive"

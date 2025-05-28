@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import Navbar from "@/components/Navbar";
 
+// Definición del esquema de validación con Zod para el formulario de contestant
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   nickname: z.string().min(1, "Nickname is required"),
@@ -22,12 +23,16 @@ const schema = z.object({
   password: z.string().min(12, "Password must be at least 12 characters"),
 });
 
+// Tipo inferido para TypeScript basado en el esquema
 type FormData = z.infer<typeof schema>;
 
 export default function NewContestantPage() {
-  const { id } = useParams(); // id del dictador
+  const { id } = useParams(); // ID del dictador para asignar contestant a este dictador
+
+  // useRouter se usa para controlar navegación, aquí para redirigir después de crear contestant
   const router = useRouter();
 
+  // Inicialización del formulario con react-hook-form y validación Zod
   const {
     register,
     handleSubmit,
@@ -36,17 +41,20 @@ export default function NewContestantPage() {
     resolver: zodResolver(schema),
   });
 
+  // Función para manejar el envío del formulario
   const onSubmit = async (data: FormData) => {
     try {
-      await api.post(`/contestants/dictators/${id}/contestants`, data); 
+      // Petición POST al backend para crear el contestant asignado al dictador id
+      await api.post(`/contestants/dictators/${id}/contestants`, data);
       alert("Contestant created!");
-      router.push(`/dictators/${id}/contestants`);
+      router.push(`/dictators/${id}/contestants`); // Redirige a la lista de contestants del dictador
     } catch (err: any) {
-        alert("Error creating contestant.");
-        console.error(err.response?.data || err);
-      }
+      alert("Error creating contestant.");
+      console.error(err.response?.data || err);
+    }
   };
 
+  // Renderizado del formulario con inputs y mensajes de error
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <Navbar />
@@ -82,11 +90,11 @@ export default function NewContestantPage() {
               {...register("status")}
               className="w-full bg-zinc-800 text-white p-2 rounded border border-zinc-600"
             >
-            <option value="">Select Status</option>
-            <option value="Alive">Alive</option>
-            <option value="Escaped">Escaped</option>
-            <option value="Dead">Dead</option>
-            <option value="Free">Free</option>
+              <option value="">Select Status</option>
+              <option value="Alive">Alive</option>
+              <option value="Escaped">Escaped</option>
+              <option value="Dead">Dead</option>
+              <option value="Free">Free</option>
             </select>
             {errors.status && <p className="text-red-500">{errors.status.message}</p>}
 

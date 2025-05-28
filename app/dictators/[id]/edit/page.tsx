@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 import Navbar from "@/components/Navbar";
 
+// Esquema de validación Zod para los campos del formulario de edición
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   territory: z.string().min(1, "Territory is required"),
@@ -19,13 +20,20 @@ const schema = z.object({
   password: z.string().min(12, "Password must be at least 12 characters"),
 });
 
+// Tipo inferido para los datos del formulario
 type FormData = z.infer<typeof schema>;
 
 export default function EditDictatorPage() {
+  // Obtiene el parámetro id de la URL para cargar y actualizar el dictador
   const { id } = useParams();
+
+  // useRouter para redireccionar tras editar
   const router = useRouter();
+
+  // Estado para controlar la carga inicial
   const [loading, setLoading] = useState(true);
 
+  // Configuración del formulario con validación
   const {
     register,
     handleSubmit,
@@ -35,6 +43,7 @@ export default function EditDictatorPage() {
     resolver: zodResolver(schema),
   });
 
+  // useEffect para cargar datos actuales del dictador y setearlos en el formulario
   useEffect(() => {
     const fetchDictator = async () => {
       try {
@@ -45,7 +54,7 @@ export default function EditDictatorPage() {
         setValue("number_of_slaves", data.number_of_slaves);
         setValue("loyalty_to_Carolina", data.loyalty_to_Carolina);
         setValue("email", data.email);
-        setValue("password", ""); // seguridad
+        setValue("password", ""); 
       } catch (err) {
         console.error("Error loading dictator", err);
       } finally {
@@ -55,19 +64,22 @@ export default function EditDictatorPage() {
     fetchDictator();
   }, [id, setValue]);
 
+  // Función para enviar los cambios al backend
   const onSubmit = async (data: FormData) => {
     try {
       await api.put(`/dictators/${id}`, data);
       alert("Dictator updated!");
-      router.push("/dictators");
+      router.push("/dictators"); // Redirige a la lista de dictadores
     } catch (err) {
       alert("Error updating dictator");
       console.error(err);
     }
   };
 
+  // Mientras carga los datos, muestra mensaje
   if (loading) return <p className="p-6 text-white">Loading...</p>;
 
+  // Renderizado del formulario para editar dictador
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <Navbar />

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import api from "@/lib/axios";
 
+// Esquema Zod para validar los datos del formulario de edición del contestant
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
   nickname: z.string().min(1, "Nickname is required"),
@@ -21,13 +22,16 @@ const schema = z.object({
   status: z.enum(["Alive", "Dead", "Escaped", "Free"]),
 });
 
+// Tipo TypeScript inferido del esquema
 type FormData = z.infer<typeof schema>;
 
 export default function EditContestantPage() {
+  // Obtiene los parámetros de la URL (id del dictador y contestant)
   const { id, contestantId } = useParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
+  // Configuración del formulario react-hook-form con validación Zod
   const {
     register,
     handleSubmit,
@@ -37,6 +41,7 @@ export default function EditContestantPage() {
     resolver: zodResolver(schema),
   });
 
+  // Efecto para cargar los datos del contestant y setearlos en el formulario
   useEffect(() => {
     const fetchContestant = async () => {
       try {
@@ -60,6 +65,7 @@ export default function EditContestantPage() {
     if (contestantId) fetchContestant();
   }, [contestantId, setValue]);
 
+  // Función que se ejecuta al enviar el formulario
   const onSubmit = async (data: FormData) => {
     try {
       await api.put(`/contestants/${contestantId}`, data);
@@ -71,8 +77,10 @@ export default function EditContestantPage() {
     }
   };
 
+  // Mostrar mensaje mientras carga los datos del contestant
   if (loading) return <p className="p-6 text-white">Loading...</p>;
 
+  // Renderizado del formulario con los inputs conectados y mensajes de error
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <Navbar />

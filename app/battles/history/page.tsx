@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 
+// Tipos para batallas y contestants
 type Battle = {
   id: string;
   contestant_1: string;
@@ -21,12 +22,15 @@ type Contestant = {
 };
 
 export default function BattlesHistoryPage() {
+  // Estado para guardar batallas y un mapa para relacionar id de contestant con nombre
   const [battles, setBattles] = useState<Battle[]>([]);
   const [nameMap, setNameMap] = useState<Map<string, string>>(new Map());
 
+  // Carga los datos al montar el componente
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Peticiones paralelas para batallas y contestants
         const [battleRes, contestantRes] = await Promise.all([
           api.get("/battles"),
           api.get("/contestants"),
@@ -34,6 +38,7 @@ export default function BattlesHistoryPage() {
 
         setBattles(battleRes.data);
 
+        // Construye el mapa id => nombre para los contestants
         const map = new Map<string, string>();
         contestantRes.data.forEach((c: Contestant) => {
           map.set(c.id, c.name);
@@ -48,8 +53,10 @@ export default function BattlesHistoryPage() {
     fetchData();
   }, []);
 
+  // Función para obtener el nombre de un contestant dado su id
   const getName = (id: string) => nameMap.get(id) || "Unknown";
 
+  // Renderizado de la tabla con historial de batallas
   return (
     <main className="min-h-screen bg-black text-white p-8">
       <Navbar />
